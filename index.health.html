@@ -1,0 +1,2049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindWatch - Understand Your Wellbeing</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* ==========================================================================
+           1. CSS VARIABLES & THEME SETUP
+           ========================================================================== */
+        :root {
+            /* Palette: Calming Modern Healthcare & Wellness */
+            --primary: #6C5CE7;
+            --primary-light: #A29BFE;
+            --primary-subtle: #F0EEFF;
+            --secondary: #00CEC9;
+            --secondary-light: #E0F7F6;
+            
+            --bg-main: #F8F9FE;
+            --bg-card: rgba(255, 255, 255, 0.85);
+            --bg-card-solid: #FFFFFF;
+            --border-color: #E2E8F0;
+            
+            --text-main: #2D3748;
+            --text-muted: #718096;
+            --text-inverse: #FFFFFF;
+            
+            /* Status Colors */
+            --status-green: #00B894;
+            --status-green-bg: #E6F8F3;
+            --status-amber: #FDCB6E;
+            --status-amber-bg: #FFF9E6;
+            --status-orange: #E17055;
+            --status-orange-bg: #FDF0ED;
+            --status-red: #D63031;
+            --status-red-bg: #FDEDEC;
+            
+            /* Elevation & FX */
+            --shadow-sm: 0 2px 8px rgba(108, 92, 231, 0.04);
+            --shadow-md: 0 8px 24px rgba(108, 92, 231, 0.08);
+            --shadow-lg: 0 16px 32px rgba(108, 92, 231, 0.12);
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.6);
+            --glass-blur: blur(12px);
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-full: 9999px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Dark Mode Overrides */
+        [data-theme="dark"] {
+            --bg-main: #0F172A;
+            --bg-card: rgba(30, 41, 59, 0.75);
+            --bg-card-solid: #1E293B;
+            --border-color: #334155;
+            
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            
+            --primary-subtle: rgba(108, 92, 231, 0.2);
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.2);
+            --shadow-md: 0 8px 24px rgba(0,0,0,0.3);
+            --shadow-lg: 0 16px 32px rgba(0,0,0,0.4);
+        }
+
+        /* ==========================================================================
+           2. BASE & RESET
+           ========================================================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4, .brand-font {
+            font-family: 'Space Grotesk', sans-serif;
+            letter-spacing: -0.02em;
+        }
+
+        button, input, select, textarea {
+            font-family: inherit;
+            font-size: inherit;
+            outline: none;
+        }
+
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        /* Focus States for Accessibility */
+        button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+
+        /* Utility Components */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: var(--glass-border);
+            box-shadow: var(--shadow-sm);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .glass-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #5b4cc4;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(108, 92, 231, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--primary-subtle);
+            color: var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-light);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-danger {
+            background: var(--status-red);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b71c1c;
+        }
+
+        .disclaimer-banner {
+            background: var(--primary-subtle);
+            border-left: 4px solid var(--primary);
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Hidden Utility */
+        .hidden {
+            display: none !important;
+        }
+
+        /* ==========================================================================
+           3. LAYOUT & NAVIGATION
+           ========================================================================== */
+        #app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-card-solid);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            transition: var(--transition);
+        }
+
+        .sidebar-brand {
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0 1rem;
+            flex: 1;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            padding: 0.85rem 1rem;
+            color: var(--text-muted);
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary);
+            background: var(--primary-subtle);
+        }
+
+        .nav-link svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Main Content Wrapper */
+        .main-wrapper {
+            flex: 1;
+            margin-left: 260px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: var(--transition);
+        }
+
+        /* Top Header */
+        .top-header {
+            height: 70px;
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 90;
+        }
+
+        .page-content {
+            padding: 2rem;
+            flex: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Bottom Nav for Mobile */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-card-solid);
+            border-top: 1px solid var(--border-color);
+            z-index: 100;
+            padding: 0.5rem 0;
+            justify-content: space-around;
+        }
+
+        .mobile-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            padding: 0.25rem;
+            cursor: pointer;
+        }
+
+        .mobile-nav-item.active {
+            color: var(--primary);
+        }
+
+        .mobile-nav-item svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        /* ==========================================================================
+           4. LANDING PAGE & AUTH
+           ========================================================================== */
+        #landing-page, #auth-page {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-main);
+            z-index: 200;
+            overflow-y: auto;
+        }
+
+        /* Hero */
+        .hero-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+            min-height: 80vh;
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero-title {
+            font-size: 3.2rem;
+            line-height: 1.15;
+            margin-bottom: 1.5rem;
+            color: var(--text-main);
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .hero-illustration {
+            width: 100%;
+            height: auto;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            max-width: 1200px;
+            margin: 2rem auto 4rem;
+            padding: 0 2rem;
+        }
+
+        /* Auth Container */
+        .auth-container {
+            max-width: 420px;
+            margin: 5vh auto;
+            padding: 2.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            background: var(--bg-card-solid);
+            color: var(--text-main);
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-subtle);
+        }
+
+        /* ==========================================================================
+           5. DASHBOARD & CHECK-IN COMPONENTS
+           ========================================================================== */
+        .grid-dashboard {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.5rem;
+        }
+
+        .col-12 { grid-column: span 12; }
+        .col-8 { grid-column: span 8; }
+        .col-6 { grid-column: span 6; }
+        .col-4 { grid-column: span 4; }
+        .col-3 { grid-column: span 3; }
+
+        /* Metric Cards */
+        .metric-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 140px;
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+            margin: 0.5rem 0;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-badge.stable { background: var(--status-green-bg); color: var(--status-green); }
+        .status-badge.attention { background: var(--status-amber-bg); color: #d68910; }
+        .status-badge.support { background: var(--status-orange-bg); color: var(--status-orange); }
+        .status-badge.critical { background: var(--status-red-bg); color: var(--status-red); }
+
+        /* Step Check-In Wizard */
+        .wizard-step {
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .wizard-step.active {
+            display: block;
+        }
+
+        .emoji-options {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .emoji-btn {
+            flex: 1;
+            padding: 1.5rem 0.5rem;
+            border-radius: var(--radius-md);
+            border: 2px solid var(--border-color);
+            background: var(--bg-card-solid);
+            cursor: pointer;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .emoji-btn span {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .emoji-btn.selected, .emoji-btn:hover {
+            border-color: var(--primary);
+            background: var(--primary-subtle);
+            transform: translateY(-4px);
+        }
+
+        .range-slider-wrap {
+            margin: 2.5rem 0;
+        }
+
+        .range-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: var(--radius-full);
+            background: var(--border-color);
+            outline: none;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin: 1.5rem 0;
+        }
+
+        .tag-chip {
+            padding: 0.5rem 1.25rem;
+            border-radius: var(--radius-full);
+            border: 1px solid var(--border-color);
+            background: var(--bg-card-solid);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+
+        .tag-chip.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Circular Wellbeing Meter */
+        .circle-progress-wrap {
+            position: relative;
+            width: 160px;
+            height: 160px;
+            margin: 0 auto;
+        }
+
+        .circle-progress-wrap svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .circle-progress-wrap circle {
+            fill: none;
+            stroke-width: 12;
+            stroke-linecap: round;
+        }
+
+        .circle-bg {
+            stroke: var(--border-color);
+        }
+
+        .circle-val {
+            stroke: var(--primary);
+            stroke-dasharray: 440;
+            stroke-dashoffset: 440;
+            transition: stroke-dashoffset 1s ease-in-out;
+        }
+
+        .circle-text {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 2rem;
+        }
+
+        /* ==========================================================================
+           6. WELLNESS TOOLS & MODALS
+           ========================================================================== */
+        /* Breathing Widget */
+        .breathing-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 3rem 1rem;
+        }
+
+        .breathing-circle {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--primary-light) 0%, var(--primary) 100%);
+            box-shadow: 0 0 30px rgba(108, 92, 231, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 2rem 0;
+            transition: transform 4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .breathing-circle.expand {
+            transform: scale(1.4);
+        }
+
+        .breathing-circle.hold {
+            transform: scale(1.4);
+        }
+
+        .breathing-circle.shrink {
+            transform: scale(1);
+            transition: transform 6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Grounding Exercise Interactive */
+        .grounding-step {
+            padding: 1rem;
+            border-left: 3px solid var(--border-color);
+            margin-bottom: 1rem;
+            transition: var(--transition);
+        }
+
+        .grounding-step.completed {
+            border-left-color: var(--status-green);
+            opacity: 0.6;
+        }
+
+        /* Modals */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 300;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .modal-backdrop.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background: var(--bg-card-solid);
+            max-width: 500px;
+            width: 100%;
+            border-radius: var(--radius-md);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            transform: translateY(20px);
+            transition: var(--transition);
+        }
+
+        .modal-backdrop.active .modal-card {
+            transform: translateY(0);
+        }
+
+        /* Safety Modal Warning Styling */
+        .safety-alert {
+            background: var(--status-red-bg);
+            border: 1px solid var(--status-red);
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            color: var(--status-red);
+            margin-bottom: 1rem;
+        }
+
+        /* ==========================================================================
+           7. ANIMATIONS & RESPONSIVE DESIGN
+           ========================================================================== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.mobile-open { transform: translateX(0); }
+            .main-wrapper { margin-left: 0; }
+            .mobile-nav { display: flex; }
+            .hero-section { grid-template-columns: 1fr; text-align: center; }
+            .col-8, .col-6, .col-4, .col-3 { grid-column: span 12; }
+            .top-header { padding: 0 1rem; }
+            .page-content { padding: 1rem 1rem 5rem 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==========================================================================
+       PRIVACY & SAFETY DISCLAIMER BANNER (GLOBAL)
+       ========================================================================== -->
+    <div id="landing-page">
+        <!-- Landing Navbar -->
+        <nav style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 2rem; max-width: 1200px; margin: 0 auto;">
+            <div class="sidebar-brand" style="padding:0;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M8 11h8"/><path d="M12 7v8"/></svg>
+                MindWatch
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-outline" onclick="showAuth('login')">Log In</button>
+                <button class="btn btn-primary" onclick="showAuth('signup')">Get Started</button>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div>
+                <h1 class="hero-title">Understand your wellbeing. <br><span style="color: var(--primary)">One day at a time.</span></h1>
+                <p class="hero-subtitle">MindWatch helps you track your mood, stress, sleep, energy, and personal wellbeing so you can better understand your patterns over time.</p>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="showAuth('signup')">Start Your Check-In</button>
+                    <button class="btn btn-secondary" onclick="enterDemoMode()">Explore Demo Mode</button>
+                </div>
+            </div>
+            <div>
+                <!-- CSS SVG Calming Illustration -->
+                <svg class="hero-illustration" viewBox="0 0 500 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="250" cy="200" r="160" fill="#F0EEFF" />
+                    <circle cx="250" cy="200" r="110" fill="#E0F7F6" />
+                    <path d="M180 260 C 220 200, 280 200, 320 260" stroke="#6C5CE7" stroke-width="8" stroke-linecap="round"/>
+                    <circle cx="190" cy="170" r="15" fill="#2D3748"/>
+                    <circle cx="310" cy="170" r="15" fill="#2D3748"/>
+                    <path d="M250 120 V 140" stroke="#00CEC9" stroke-width="6" stroke-linecap="round"/>
+                    <path d="M130 200 H 150" stroke="#00CEC9" stroke-width="6" stroke-linecap="round"/>
+                    <path d="M350 200 H 370" stroke="#00CEC9" stroke-width="6" stroke-linecap="round"/>
+                </svg>
+            </div>
+        </section>
+
+        <!-- Feature Cards -->
+        <div class="features-grid">
+            <div class="glass-card">
+                <h3>Daily Check-ins</h3>
+                <p style="color: var(--text-muted); margin-top: 0.5rem;">Record how you're feeling each day through a calming step-by-step reflection.</p>
+            </div>
+            <div class="glass-card">
+                <h3>Personal Trends</h3>
+                <p style="color: var(--text-muted); margin-top: 0.5rem;">Understand changes in your wellbeing, stress, and sleep patterns over time.</p>
+            </div>
+            <div class="glass-card">
+                <h3>Private Journal</h3>
+                <p style="color: var(--text-muted); margin-top: 0.5rem;">Write down thoughts and experiences in a safe, locally encrypted space.</p>
+            </div>
+            <div class="glass-card">
+                <h3>Wellness Tools</h3>
+                <p style="color: var(--text-muted); margin-top: 0.5rem;">Access simple breathing, grounding, reflection and relaxation exercises.</p>
+            </div>
+            <div class="glass-card">
+                <h3>Support</h3>
+                <p style="color: var(--text-muted); margin-top: 0.5rem;">Find resources and actionable options when you need additional help.</p>
+            </div>
+        </div>
+
+        <div style="text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.85rem;">
+            MindWatch is a personal wellbeing monitoring tool, not a medical diagnostic service.
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+       AUTHENTICATION OVERLAY
+       ========================================================================== -->
+    <div id="auth-page" class="hidden">
+        <div style="padding: 1.5rem 2rem;">
+            <button class="btn btn-outline" onclick="hideAuth()">← Back to Home</button>
+        </div>
+        <div class="glass-card auth-container">
+            <!-- Login Form -->
+            <form id="login-form" onsubmit="handleAuth(event, 'login')">
+                <h2 style="margin-bottom: 0.5rem;">Welcome back</h2>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Log in to view your wellbeing dashboard.</p>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="login-email" class="form-control" required placeholder="you@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="login-password" class="form-control" required placeholder="••••••••">
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; font-size: 0.85rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; margin: 0; cursor: pointer;">
+                        <input type="checkbox"> Remember me
+                    </label>
+                    <a href="#" onclick="alert('In a production app, password reset instructions will be sent. For this prototype, enter your credentials or use Demo Mode.'); return false;">Forgot password?</a>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Log In</button>
+                <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem;">
+                    Don't have an account? <a href="#" onclick="switchAuthTab('signup'); return false;">Sign Up</a>
+                </p>
+            </form>
+
+            <!-- Sign Up Form -->
+            <form id="signup-form" class="hidden" onsubmit="handleAuth(event, 'signup')">
+                <h2 style="margin-bottom: 0.5rem;">Create Account</h2>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Start monitoring your daily wellbeing safely.</p>
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="signup-name" class="form-control" required placeholder="Alex Morgan">
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="signup-email" class="form-control" required placeholder="you@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="signup-password" class="form-control" required minlength="6" placeholder="••••••••">
+                </div>
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" id="signup-confirm" class="form-control" required minlength="6" placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
+                <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem;">
+                    Already have an account? <a href="#" onclick="switchAuthTab('login'); return false;">Log In</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+       MAIN APPLICATION LAYOUT (DESKTOP SIDEBAR + MAIN CONTENT)
+       ========================================================================== -->
+    <div id="app-container" class="hidden">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M8 11h8"/><path d="M12 7v8"/></svg>
+                MindWatch
+            </div>
+            <ul class="sidebar-menu">
+                <li class="nav-item">
+                    <a class="nav-link active" onclick="navigateTo('dashboard')">
+                        <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+                        Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="navigateTo('checkin')">
+                        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                        Check-In
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="navigateTo('insights')">
+                        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+                        Insights
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="navigateTo('journal')">
+                        <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+                        Journal
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="navigateTo('wellness')">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                        Wellness Toolkit
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="navigateTo('support')">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 16h-2v-2h2v2zm1.07-7.75l-.9.92C12.45 11.9 12 12.5 12 14h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
+                        Support Center
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="navigateTo('profile')">
+                        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        Profile
+                    </a>
+                </li>
+            </ul>
+            <div class="sidebar-footer">
+                <button class="btn btn-outline" style="width: 100%; justify-content: flex-start;" onclick="logout()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    Log Out
+                </button>
+            </div>
+        </aside>
+
+        <!-- Wrapper for Header and Views -->
+        <div class="main-wrapper">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div>
+                    <h3 id="header-user-greeting">Good afternoon, Friend 👋</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);" id="header-current-date">Loading date...</p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span id="demo-indicator" class="status-badge attention hidden">Demo Mode Active</span>
+                    <button class="btn btn-primary" onclick="navigateTo('checkin')">+ Check-In</button>
+                </div>
+            </header>
+
+            <!-- Dynamic View Viewport -->
+            <main class="page-content">
+                <div class="disclaimer-banner">
+                    <strong>Notice:</strong> MindWatch is a self-reflection wellbeing tool, not a medical diagnostic service or substitute for clinical care.
+                </div>
+
+                <!-- ------------------------------------------------------------------
+                   VIEW 1: DASHBOARD
+                   ------------------------------------------------------------------ -->
+                <section id="view-dashboard" class="app-view animate-fade-in">
+                    <div class="grid-dashboard">
+                        
+                        <!-- Wellbeing Score Card -->
+                        <div class="glass-card col-4" style="text-align: center;">
+                            <h4 style="margin-bottom: 1rem; color: var(--text-muted);">Overall Wellbeing</h4>
+                            <div class="circle-progress-wrap">
+                                <svg>
+                                    <circle class="circle-bg" cx="80" cy="80" r="70"/>
+                                    <circle id="wellbeing-progress" class="circle-val" cx="80" cy="80" r="70"/>
+                                </svg>
+                                <div class="circle-text">
+                                    <span id="wellbeing-score-num">--</span>
+                                    <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted);">/ 100</span>
+                                </div>
+                            </div>
+                            <div style="margin-top: 1rem;">
+                                <span id="wellbeing-status-badge" class="status-badge stable">🟢 Stable</span>
+                            </div>
+                        </div>
+
+                        <!-- Quick Overview Cards Grid -->
+                        <div class="col-8" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                            <div class="glass-card metric-card">
+                                <div class="metric-header"><span>Today's Mood</span> <span>😄</span></div>
+                                <div class="metric-value" id="dash-mood-val">--</div>
+                                <div style="font-size: 0.85rem; color: var(--text-muted);" id="dash-mood-lbl">No entry today</div>
+                            </div>
+                            <div class="glass-card metric-card">
+                                <div class="metric-header"><span>Stress Level</span> <span>🌊</span></div>
+                                <div class="metric-value" id="dash-stress-val">--</div>
+                                <div style="font-size: 0.85rem; color: var(--text-muted);">Scale 0 - 10</div>
+                            </div>
+                            <div class="glass-card metric-card">
+                                <div class="metric-header"><span>Sleep Quality</span> <span>🌙</span></div>
+                                <div class="metric-value" id="dash-sleep-val">--</div>
+                                <div style="font-size: 0.85rem; color: var(--text-muted);" id="dash-sleep-lbl">Rating</div>
+                            </div>
+                            <div class="glass-card metric-card">
+                                <div class="metric-header"><span>Energy Level</span> <span>⚡</span></div>
+                                <div class="metric-value" id="dash-energy-val">--</div>
+                                <div style="font-size: 0.85rem; color: var(--text-muted);">Scale 0 - 10</div>
+                            </div>
+                        </div>
+
+                        <!-- Action Card or Recent Insights Preview -->
+                        <div class="glass-card col-12">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <h3>Quick Wellness Actions</h3>
+                                <button class="btn btn-outline" onclick="navigateTo('wellness')">View All Tools</button>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+                                <div style="padding: 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer;" onclick="navigateTo('wellness')">
+                                    <h4 style="color: var(--primary);">🫁 2-Min Breathing</h4>
+                                    <p style="font-size: 0.85rem; color: var(--text-muted);">Reset your nervous system with paced breathing.</p>
+                                </div>
+                                <div style="padding: 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer;" onclick="navigateTo('journal')">
+                                    <h4 style="color: var(--primary);">📝 Expressive Journal</h4>
+                                    <p style="font-size: 0.85rem; color: var(--text-muted);">Clear your mind by writing down your thoughts.</p>
+                                </div>
+                                <div style="padding: 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer;" onclick="navigateTo('support')">
+                                    <h4 style="color: var(--primary);">💬 Supportive Resources</h4>
+                                    <p style="font-size: 0.85rem; color: var(--text-muted);">Explore options if you need a helping hand.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- ------------------------------------------------------------------
+                   VIEW 2: STEP-BY-STEP DAILY CHECK-IN
+                   ------------------------------------------------------------------ -->
+                <section id="view-checkin" class="app-view hidden">
+                    <div class="glass-card" style="max-width: 700px; margin: 0 auto;">
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+                            <h2>Daily Check-In</h2>
+                            <span id="checkin-step-indicator" style="font-size: 0.9rem; color: var(--text-muted);">Step 1 of 8</span>
+                        </div>
+
+                        <form id="checkin-form" onsubmit="event.preventDefault();">
+                            
+                            <!-- Step 1: Mood -->
+                            <div class="wizard-step active" data-step="1">
+                                <h3>How are you feeling today?</h3>
+                                <div class="emoji-options">
+                                    <div class="emoji-btn" onclick="selectMood(5, 'Great', this)"><span>😄</span>Great</div>
+                                    <div class="emoji-btn" onclick="selectMood(4, 'Good', this)"><span>🙂</span>Good</div>
+                                    <div class="emoji-btn" onclick="selectMood(3, 'Okay', this)"><span>😐</span>Okay</div>
+                                    <div class="emoji-btn" onclick="selectMood(2, 'Low', this)"><span>🙁</span>Low</div>
+                                    <div class="emoji-btn" onclick="selectMood(1, 'Very Low', this)"><span>😢</span>Very Low</div>
+                                </div>
+                            </div>
+
+                            <!-- Step 2: Stress -->
+                            <div class="wizard-step" data-step="2">
+                                <h3>How stressed do you feel today?</h3>
+                                <div class="range-slider-wrap">
+                                    <input type="range" min="0" max="10" value="5" class="range-slider" id="input-stress" oninput="document.getElementById('lbl-stress').innerText = this.value">
+                                    <div class="slider-labels">
+                                        <span>0 (Peaceful)</span>
+                                        <span id="lbl-stress" style="font-weight: bold; color: var(--primary);">5</span>
+                                        <span>10 (Overwhelmed)</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 3: Anxiety -->
+                            <div class="wizard-step" data-step="3">
+                                <h3>How anxious do you feel?</h3>
+                                <div class="range-slider-wrap">
+                                    <input type="range" min="0" max="10" value="3" class="range-slider" id="input-anxiety" oninput="document.getElementById('lbl-anxiety').innerText = this.value">
+                                    <div class="slider-labels">
+                                        <span>0 (Calm)</span>
+                                        <span id="lbl-anxiety" style="font-weight: bold; color: var(--primary);">3</span>
+                                        <span>10 (Highly Anxious)</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 4: Sleep -->
+                            <div class="wizard-step" data-step="4">
+                                <h3>How was your sleep last night?</h3>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.75rem; margin: 2rem 0;">
+                                    <button type="button" class="btn btn-outline sleep-btn" onclick="selectSleep(1, 'Very Poor', this)">Very Poor</button>
+                                    <button type="button" class="btn btn-outline sleep-btn" onclick="selectSleep(2, 'Poor', this)">Poor</button>
+                                    <button type="button" class="btn btn-outline sleep-btn" onclick="selectSleep(3, 'Fair', this)">Fair</button>
+                                    <button type="button" class="btn btn-outline sleep-btn" onclick="selectSleep(4, 'Good', this)">Good</button>
+                                    <button type="button" class="btn btn-outline sleep-btn" onclick="selectSleep(5, 'Excellent', this)">Excellent</button>
+                                </div>
+                            </div>
+
+                            <!-- Step 5: Energy -->
+                            <div class="wizard-step" data-step="5">
+                                <h3>How would you describe your energy level?</h3>
+                                <div class="range-slider-wrap">
+                                    <input type="range" min="0" max="10" value="6" class="range-slider" id="input-energy" oninput="document.getElementById('lbl-energy').innerText = this.value">
+                                    <div class="slider-labels">
+                                        <span>0 (Exhausted)</span>
+                                        <span id="lbl-energy" style="font-weight: bold; color: var(--primary);">6</span>
+                                        <span>10 (Energized)</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 6: Connection -->
+                            <div class="wizard-step" data-step="6">
+                                <h3>How connected do you feel to others today?</h3>
+                                <div class="range-slider-wrap">
+                                    <input type="range" min="0" max="10" value="5" class="range-slider" id="input-connection" oninput="document.getElementById('lbl-connection').innerText = this.value">
+                                    <div class="slider-labels">
+                                        <span>0 (Isolated)</span>
+                                        <span id="lbl-connection" style="font-weight: bold; color: var(--primary);">5</span>
+                                        <span>10 (Very Connected)</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 7: Factors & Notes -->
+                            <div class="wizard-step" data-step="7">
+                                <h3>What contributed most to your feeling?</h3>
+                                <p style="font-size: 0.85rem; color: var(--text-muted);">Select all that apply:</p>
+                                <div class="tag-cloud">
+                                    <div class="tag-chip" onclick="toggleTag(this, 'Work/School')">Work/School</div>
+                                    <div class="tag-chip" onclick="toggleTag(this, 'Relationships')">Relationships</div>
+                                    <div class="tag-chip" onclick="toggleTag(this, 'Finances')">Finances</div>
+                                    <div class="tag-chip" onclick="toggleTag(this, 'Family')">Family</div>
+                                    <div class="tag-chip" onclick="toggleTag(this, 'Health')">Health</div>
+                                    <div class="tag-chip" onclick="toggleTag(this, 'Sleep')">Sleep</div>
+                                    <div class="tag-chip" onclick="toggleTag(this, 'Loneliness')">Loneliness</div>
+                                    <div class="tag-chip" onclick="toggleTag(this, 'Social Media')">Social Media</div>
+                                    <div class="tag-chip" onclick="toggleTag(this, 'Personal Goals')">Personal Goals</div>
+                                </div>
+                                <div class="form-group" style="margin-top: 1.5rem;">
+                                    <label>Is there anything you'd like to talk about or note down? (Optional)</label>
+                                    <textarea id="checkin-notes" class="form-control" rows="3" placeholder="Write any additional thoughts..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Step 8: Safety Check -->
+                            <div class="wizard-step" data-step="8">
+                                <h3>Safety Check</h3>
+                                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Your safety matters deeply. Are you feeling safe right now?</p>
+                                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                                    <button type="button" class="btn btn-outline" style="text-align: left; justify-content: flex-start;" onclick="answerSafety('yes')">🟢 Yes, I feel safe.</button>
+                                    <button type="button" class="btn btn-outline" style="text-align: left; justify-content: flex-start;" onclick="answerSafety('unsure')">🟡 I'm not sure / Feeling overwhelmed.</button>
+                                    <button type="button" class="btn btn-outline" style="text-align: left; justify-content: flex-start;" onclick="answerSafety('no')">🔴 No, I don't feel safe.</button>
+                                </div>
+                            </div>
+
+                            <!-- Wizard Control Buttons -->
+                            <div style="display: flex; justify-content: space-between; margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                                <button type="button" id="btn-wizard-prev" class="btn btn-outline" onclick="changeWizardStep(-1)" disabled>Previous</button>
+                                <button type="button" id="btn-wizard-next" class="btn btn-primary" onclick="changeWizardStep(1)">Next Step</button>
+                            </div>
+
+                        </form>
+                    </div>
+                </section>
+
+                <!-- ------------------------------------------------------------------
+                   VIEW 3: INSIGHTS & ANALYTICS
+                   ------------------------------------------------------------------ -->
+                <section id="view-insights" class="app-view hidden">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                        <h2>Personal Trends & Insights</h2>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-outline time-filter-btn" onclick="updateChartTimeframe(7, this)">7 Days</button>
+                            <button class="btn btn-outline time-filter-btn active" onclick="updateChartTimeframe(30, this)">30 Days</button>
+                            <button class="btn btn-outline time-filter-btn" onclick="updateChartTimeframe(90, this)">90 Days</button>
+                        </div>
+                    </div>
+
+                    <!-- Empty State for Insufficient Data -->
+                    <div id="insights-empty-state" class="glass-card hidden" style="text-align: center; padding: 3rem 1rem;">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5"><path d="M12 20v-6M6 20V10M18 20V4"/></svg>
+                        <h3 style="margin-top: 1rem;">Complete a few more check-ins</h3>
+                        <p style="color: var(--text-muted); max-width: 400px; margin: 0.5rem auto 1.5rem;">We need a bit more data to calculate your personal wellbeing patterns accurately.</p>
+                        <button class="btn btn-primary" onclick="navigateTo('checkin')">Start Daily Check-In</button>
+                    </div>
+
+                    <!-- Chart Grid -->
+                    <div id="insights-charts-grid" class="grid-dashboard">
+                        <div class="glass-card col-6">
+                            <h4>Mood & Stress Trend</h4>
+                            <div style="position: relative; height: 260px; margin-top: 1rem;">
+                                <canvas id="chart-mood-stress"></canvas>
+                            </div>
+                        </div>
+                        <div class="glass-card col-6">
+                            <h4>Sleep vs Energy Correlation</h4>
+                            <div style="position: relative; height: 260px; margin-top: 1rem;">
+                                <canvas id="chart-sleep-energy"></canvas>
+                            </div>
+                        </div>
+                        <div class="glass-card col-12">
+                            <h4>Anxiety Patterns</h4>
+                            <div style="position: relative; height: 260px; margin-top: 1rem;">
+                                <canvas id="chart-anxiety"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ------------------------------------------------------------------
+                   VIEW 4: PRIVATE JOURNAL
+                   ------------------------------------------------------------------ -->
+                <section id="view-journal" class="app-view hidden">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <h2>Private Journal</h2>
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">Your thoughts matter. Written entries are stored locally on your device.</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openJournalModal()">+ New Entry</button>
+                    </div>
+
+                    <!-- Search and Filter controls -->
+                    <div class="glass-card" style="margin-bottom: 1.5rem; padding: 1rem;">
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <input type="text" id="journal-search" class="form-control" style="flex: 1;" placeholder="Search entries..." oninput="renderJournalEntries()">
+                            <select id="journal-filter-mood" class="form-control" style="width: auto;" onchange="renderJournalEntries()">
+                                <option value="ALL">All Moods</option>
+                                <option value="5">Great 😄</option>
+                                <option value="4">Good 🙂</option>
+                                <option value="3">Okay 😐</option>
+                                <option value="2">Low 🙁</option>
+                                <option value="1">Very Low 😢</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Journal List Container -->
+                    <div id="journal-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+                        <!-- Dynamic Entries Here -->
+                    </div>
+                </section>
+
+                <!-- ------------------------------------------------------------------
+                   VIEW 5: WELLNESS TOOLKIT
+                   ------------------------------------------------------------------ -->
+                <section id="view-wellness" class="app-view hidden">
+                    <h2 style="margin-bottom: 1.5rem;">Wellness Toolkit</h2>
+                    
+                    <div class="grid-dashboard">
+                        
+                        <!-- Breathing Exercise Widget -->
+                        <div class="glass-card col-6">
+                            <h3>🫁 Paced Breathing (Box Breathing)</h3>
+                            <p style="color: var(--text-muted); font-size: 0.85rem;">Follow the visual rhythm to anchor yourself in the present moment.</p>
+                            
+                            <div class="breathing-container">
+                                <div id="breathing-circle" class="breathing-circle">Ready</div>
+                                <p id="breathing-instruction" style="font-weight: 600; min-height: 24px;">Click Start to begin</p>
+                                <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                                    <button id="btn-breath-start" class="btn btn-primary" onclick="toggleBreathing()">Start</button>
+                                    <button class="btn btn-outline" onclick="resetBreathing()">Reset</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 5-4-3-2-1 Grounding Tool -->
+                        <div class="glass-card col-6">
+                            <h3>🌱 5-4-3-2-1 Sensory Grounding</h3>
+                            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">Identify surroundings to regain calm during high stress.</p>
+                            
+                            <div class="grounding-step" id="g-step-1">
+                                <strong>5 - Things you can see:</strong>
+                                <input type="text" class="form-control" style="margin-top:0.4rem;" placeholder="e.g. Desk lamp, window, plant...">
+                            </div>
+                            <div class="grounding-step" id="g-step-2">
+                                <strong>4 - Things you can touch:</strong>
+                                <input type="text" class="form-control" style="margin-top:0.4rem;" placeholder="e.g. Chair fabric, coffee mug...">
+                            </div>
+                            <div class="grounding-step" id="g-step-3">
+                                <strong>3 - Things you can hear:</strong>
+                                <input type="text" class="form-control" style="margin-top:0.4rem;" placeholder="e.g. Clock ticking, birds outside...">
+                            </div>
+                            <div class="grounding-step" id="g-step-4">
+                                <strong>2 - Things you can smell:</strong>
+                                <input type="text" class="form-control" style="margin-top:0.4rem;" placeholder="e.g. Fresh air, tea...">
+                            </div>
+                            <div class="grounding-step" id="g-step-5">
+                                <strong>1 - Thing you can taste:</strong>
+                                <input type="text" class="form-control" style="margin-top:0.4rem;" placeholder="e.g. Mint, water...">
+                            </div>
+                            <button class="btn btn-secondary" style="width: 100%;" onclick="alert('Grounding exercise complete. Great job anchoring yourself!')">Complete Grounding</button>
+                        </div>
+
+                        <!-- Daily Reflection Card -->
+                        <div class="glass-card col-12">
+                            <h3>💭 Guided Self-Reflection</h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                                <div>
+                                    <label style="font-size: 0.85rem; font-weight: 600;">What went well today?</label>
+                                    <textarea id="reflect-1" class="form-control" rows="2"></textarea>
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.85rem; font-weight: 600;">What was difficult, and how did I manage?</label>
+                                    <textarea id="reflect-2" class="form-control" rows="2"></textarea>
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.85rem; font-weight: 600;">What is one thing I am grateful for?</label>
+                                    <textarea id="reflect-3" class="form-control" rows="2"></textarea>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" style="margin-top: 1rem;" onclick="saveReflection()">Save Reflection</button>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- ------------------------------------------------------------------
+                   VIEW 6: SUPPORT CENTER
+                   ------------------------------------------------------------------ -->
+                <section id="view-support" class="app-view hidden">
+                    <div class="glass-card" style="background: linear-gradient(135deg, var(--primary-subtle), var(--secondary-light)); margin-bottom: 2rem;">
+                        <h2>You don't have to handle everything alone.</h2>
+                        <p style="color: var(--text-muted); margin-top: 0.5rem;">Reach out to trusted contacts, professional services, or supportive spaces whenever you feel ready.</p>
+                        <button class="btn btn-danger" style="margin-top: 1rem;" onclick="showSafetyModal()">I Need Help Now</button>
+                    </div>
+
+                    <div class="grid-dashboard">
+                        <div class="glass-card col-6">
+                            <h3>👥 Talk to Someone You Trust</h3>
+                            <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0.5rem 0 1rem;">Sharing what you're experiencing with a friend, family member, or mentor can lighten the emotional weight.</p>
+                            <button class="btn btn-outline" onclick="alert('Consider reaching out via phone call, message, or meet up with a close friend.')">View Tips on Reaching Out</button>
+                        </div>
+
+                        <div class="glass-card col-6">
+                            <h3>🩺 Professional Mental Health Services</h3>
+                            <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0.5rem 0 1rem;">Consider speaking with a licensed therapist, clinical counselor, or healthcare provider for tailored professional care.</p>
+                            <button class="btn btn-outline" onclick="alert('Contact your primary healthcare provider or health insurance directory to locate certified professionals in your area.')">Finding a Healthcare Professional</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ------------------------------------------------------------------
+                   VIEW 7: PROFILE & SETTINGS
+                   ------------------------------------------------------------------ -->
+                <section id="view-profile" class="app-view hidden">
+                    <h2>Profile & Settings</h2>
+                    
+                    <div class="grid-dashboard" style="margin-top: 1.5rem;">
+                        
+                        <!-- Account & Preferences -->
+                        <div class="glass-card col-6">
+                            <h3>Account Information</h3>
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label>Full Name</label>
+                                <input type="text" id="prof-name" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>Email Address</label>
+                                <input type="email" id="prof-email" class="form-control" disabled>
+                            </div>
+                            <button class="btn btn-primary" onclick="saveProfileSettings()">Save Changes</button>
+                        </div>
+
+                        <!-- Preferences & Theme -->
+                        <div class="glass-card col-6">
+                            <h3>App Preferences</h3>
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label>Theme Interface</label>
+                                <select id="pref-theme" class="form-control" onchange="toggleTheme(this.value)">
+                                    <option value="light">🌞 Light Mode</option>
+                                    <option value="dark">🌙 Dark Mode</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Simulated Daily Check-In Reminder</label>
+                                <input type="time" id="pref-time" class="form-control" value="20:00">
+                            </div>
+                        </div>
+
+                        <!-- Data & Privacy Management -->
+                        <div class="glass-card col-12">
+                            <h3>Data Management & Local Privacy</h3>
+                            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">You own your health metrics. All details are stored strictly inside your browser local storage.</p>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                <button class="btn btn-outline" onclick="exportUserData()">📥 Export My Data (JSON)</button>
+                                <button class="btn btn-danger" onclick="clearUserData()">🗑️ Delete My Data</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+       MOBILE BOTTOM NAVIGATION
+       ========================================================================== -->
+    <nav class="mobile-nav">
+        <div class="mobile-nav-item active" onclick="navigateTo('dashboard')">
+            <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+            Dashboard
+        </div>
+        <div class="mobile-nav-item" onclick="navigateTo('checkin')">
+            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            Check-In
+        </div>
+        <div class="mobile-nav-item" onclick="navigateTo('insights')">
+            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+            Insights
+        </div>
+        <div class="mobile-nav-item" onclick="navigateTo('journal')">
+            <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+            Journal
+        </div>
+        <div class="mobile-nav-item" onclick="navigateTo('support')">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 16h-2v-2h2v2zm1.07-7.75l-.9.92C12.45 11.9 12 12.5 12 14h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
+            Support
+        </div>
+    </nav>
+
+    <!-- ==========================================================================
+       SAFETY / IMMEDIATE HELP MODAL
+       ========================================================================== -->
+    <div id="safety-modal" class="modal-backdrop">
+        <div class="modal-card">
+            <div class="safety-alert">
+                <h3>We're glad you told us.</h3>
+                <p style="font-size: 0.9rem; margin-top: 0.5rem;">You don't have to deal with this alone. If you think you may be in immediate danger or might hurt yourself or someone else, please take action right away.</p>
+            </div>
+            
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+                <strong>Recommended immediate actions:</strong>
+                <br>• Contact local emergency services (e.g., 911, 999, 112).
+                <br>• Go to the nearest hospital emergency department.
+                <br>• Reach out immediately to a trusted friend or family member to stay with you.
+            </p>
+
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <button class="btn btn-primary" onclick="alert('Please configure verified emergency contacts or local hotline services for your jurisdiction.')">Contact Crisis Services</button>
+                <button class="btn btn-outline" onclick="closeSafetyModal()">Return to App</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+       NEW JOURNAL ENTRY MODAL
+       ========================================================================== -->
+    <div id="journal-modal" class="modal-backdrop">
+        <div class="modal-card" style="max-width: 600px;">
+            <h3 style="margin-bottom: 1rem;" id="journal-modal-title">New Journal Entry</h3>
+            <form onsubmit="handleSaveJournal(event)">
+                <input type="hidden" id="journal-edit-id">
+                <div class="form-group">
+                    <label>Entry Title</label>
+                    <input type="text" id="journal-title" class="form-control" required placeholder="Today's reflections...">
+                </div>
+                <div class="form-group">
+                    <label>Current Mood</label>
+                    <select id="journal-mood" class="form-control">
+                        <option value="5">Great 😄</option>
+                        <option value="4">Good 🙂</option>
+                        <option value="3" selected>Okay 😐</option>
+                        <option value="2">Low 🙁</option>
+                        <option value="1">Very Low 😢</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Content</label>
+                    <textarea id="journal-content" class="form-control" rows="6" required placeholder="Write freely..."></textarea>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-outline" onclick="closeJournalModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Entry</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+       APPLICATION LOGIC & CORE JAVASCRIPT
+       ========================================================================== -->
+    <script>
+        /* ==========================================================================
+           1. STATE MANAGEMENT & STORAGE KEYS
+           ========================================================================== */
+        const STORAGE_KEYS = {
+            USER: 'mindwatch_user',
+            CHECKINS: 'mindwatch_checkins',
+            JOURNAL: 'mindwatch_journal',
+            SETTINGS: 'mindwatch_settings',
+            REFLECTIONS: 'mindwatch_reflections'
+        };
+
+        let appState = {
+            currentUser: null,
+            isDemo: false,
+            checkins: [],
+            journal: [],
+            reflections: [],
+            settings: { theme: 'light', reminderTime: '20:00' },
+            currentCheckin: {
+                moodScore: 3,
+                moodText: 'Okay',
+                stress: 5,
+                anxiety: 3,
+                sleep: 3,
+                energy: 6,
+                connection: 5,
+                factors: [],
+                notes: ''
+            },
+            wizardStep: 1,
+            breathingInterval: null,
+            chartInstances: {}
+        };
+
+        /* ==========================================================================
+           2. INITIALIZATION
+           ========================================================================== */
+        document.addEventListener('DOMContentLoaded', () => {
+            initDateHeader();
+            loadLocalStorageData();
+            checkAuthSession();
+        });
+
+        function initDateHeader() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('header-current-date').innerText = new Date().toLocaleDateString(undefined, options);
+        }
+
+        function loadLocalStorageData() {
+            try {
+                const userRaw = localStorage.getItem(STORAGE_KEYS.USER);
+                if (userRaw) appState.currentUser = JSON.parse(userRaw);
+
+                const checkinsRaw = localStorage.getItem(STORAGE_KEYS.CHECKINS);
+                if (checkinsRaw) appState.checkins = JSON.parse(checkinsRaw);
+
+                const journalRaw = localStorage.getItem(STORAGE_KEYS.JOURNAL);
+                if (journalRaw) appState.journal = JSON.parse(journalRaw);
+
+                const settingsRaw = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+                if (settingsRaw) {
+                    appState.settings = JSON.parse(settingsRaw);
+                    toggleTheme(appState.settings.theme);
+                }
+            } catch (e) {
+                console.error("Error loading local storage data", e);
+            }
+        }
+
+        function checkAuthSession() {
+            if (appState.currentUser || appState.isDemo) {
+                document.getElementById('landing-page').classList.add('hidden');
+                document.getElementById('auth-page').classList.add('hidden');
+                document.getElementById('app-container').classList.remove('hidden');
+                
+                document.getElementById('header-user-greeting').innerText = `Good day, ${appState.currentUser ? appState.currentUser.name : 'Explorer'} 👋`;
+                document.getElementById('prof-name').value = appState.currentUser ? appState.currentUser.name : 'Demo User';
+                document.getElementById('prof-email').value = appState.currentUser ? appState.currentUser.email : 'demo@mindwatch.local';
+
+                refreshDashboard();
+            } else {
+                document.getElementById('landing-page').classList.remove('hidden');
+                document.getElementById('app-container').classList.add('hidden');
+            }
+        }
+
+        /* ==========================================================================
+           3. AUTHENTICATION & DEMO MODE
+           ========================================================================== */
+        function showAuth(tab) {
+            document.getElementById('landing-page').classList.add('hidden');
+            document.getElementById('auth-page').classList.remove('hidden');
+            switchAuthTab(tab);
+        }
+
+        function hideAuth() {
+            document.getElementById('auth-page').classList.add('hidden');
+            document.getElementById('landing-page').classList.remove('hidden');
+        }
+
+        function switchAuthTab(tab) {
+            if (tab === 'login') {
+                document.getElementById('login-form').classList.remove('hidden');
+                document.getElementById('signup-form').classList.add('hidden');
+            } else {
+                document.getElementById('login-form').classList.add('hidden');
+                document.getElementById('signup-form').classList.remove('hidden');
+            }
+        }
+
+        function handleAuth(event, type) {
+            event.preventDefault();
+            if (type === 'signup') {
+                const name = document.getElementById('signup-name').value;
+                const email = document.getElementById('signup-email').value;
+                const pass = document.getElementById('signup-password').value;
+                const confirm = document.getElementById('signup-confirm').value;
+
+                if (pass !== confirm) {
+                    alert("Passwords do not match.");
+                    return;
+                }
+
+                appState.currentUser = { name, email };
+                localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(appState.currentUser));
+            } else {
+                const email = document.getElementById('login-email').value;
+                appState.currentUser = { name: email.split('@')[0], email };
+                localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(appState.currentUser));
+            }
+            appState.isDemo = false;
+            document.getElementById('demo-indicator').classList.add('hidden');
+            checkAuthSession();
+        }
+
+        function enterDemoMode() {
+            appState.isDemo = true;
+            appState.currentUser = { name: 'Demo Explorer', email: 'demo@mindwatch.local' };
+            
+            // Populate sample data strictly marked as sample
+            appState.checkins = [
+                { date: new Date(Date.now() - 86400000 * 4).toISOString(), moodScore: 4, moodText: 'Good', stress: 4, anxiety: 2, sleep: 4, energy: 7, connection: 8, wellbeingScore: 78 },
+                { date: new Date(Date.now() - 86400000 * 3).toISOString(), moodScore: 3, moodText: 'Okay', stress: 6, anxiety: 5, sleep: 3, energy: 5, connection: 6, wellbeingScore: 62 },
+                { date: new Date(Date.now() - 86400000 * 2).toISOString(), moodScore: 4, moodText: 'Good', stress: 3, anxiety: 3, sleep: 4, energy: 8, connection: 7, wellbeingScore: 81 },
+                { date: new Date(Date.now() - 86400000 * 1).toISOString(), moodScore: 5, moodText: 'Great', stress: 2, anxiety: 1, sleep: 5, energy: 9, connection: 9, wellbeingScore: 90 }
+            ];
+
+            appState.journal = [
+                { id: 'd1', date: new Date().toISOString(), title: 'Sample Reflection', content: 'This is sample data to demonstrate the journal functionality.', moodScore: 4 }
+            ];
+
+            document.getElementById('demo-indicator').classList.remove('hidden');
+            checkAuthSession();
+        }
+
+        function logout() {
+            appState.currentUser = null;
+            appState.isDemo = false;
+            localStorage.removeItem(STORAGE_KEYS.USER);
+            checkAuthSession();
+        }
+
+        /* ==========================================================================
+           4. NAVIGATION & SPA VIEW SWITCHING
+           ========================================================================== */
+        function navigateTo(viewId) {
+            document.querySelectorAll('.app-view').forEach(el => el.classList.add('hidden'));
+            
+            const target = document.getElementById(`view-${viewId}`);
+            if (target) target.classList.remove('hidden');
+
+            // Update Desktop Sidebar Links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('onclick').includes(viewId)) link.classList.add('active');
+            });
+
+            // Update Mobile Nav
+            document.querySelectorAll('.mobile-nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('onclick').includes(viewId)) item.classList.add('active');
+            });
+
+            // Specific View Triggers
+            if (viewId === 'dashboard') refreshDashboard();
+            if (viewId === 'insights') renderCharts(30);
+            if (viewId === 'journal') renderJournalEntries();
+        }
+
+        /* ==========================================================================
+           5. WELLBEING SCORE & DASHBOARD REFRESH
+           ========================================================================== */
+        function calculateWellbeingScore(entry) {
+            // Formula normalized to 0 - 100
+            // Mood (25%), Stress Inverse (15%), Anxiety Inverse (15%), Sleep (15%), Energy (15%), Connection (15%)
+            const moodNorm = (entry.moodScore / 5) * 25;
+            const stressNorm = ((10 - entry.stress) / 10) * 15;
+            const anxietyNorm = ((10 - entry.anxiety) / 10) * 15;
+            const sleepNorm = (entry.sleep / 5) * 15;
+            const energyNorm = (entry.energy / 10) * 15;
+            const connectNorm = (entry.connection / 10) * 15;
+
+            return Math.round(moodNorm + stressNorm + anxietyNorm + sleepNorm + energyNorm + connectNorm);
+        }
+
+        function refreshDashboard() {
+            if (appState.checkins.length === 0) {
+                document.getElementById('dash-mood-val').innerText = '--';
+                document.getElementById('dash-stress-val').innerText = '--';
+                document.getElementById('dash-sleep-val').innerText = '--';
+                document.getElementById('dash-energy-val').innerText = '--';
+                document.getElementById('wellbeing-score-num').innerText = '--';
+                return;
+            }
+
+            const latest = appState.checkins[appState.checkins.length - 1];
+            
+            document.getElementById('dash-mood-val').innerText = latest.moodText;
+            document.getElementById('dash-stress-val').innerText = `${latest.stress} / 10`;
+            document.getElementById('dash-sleep-val').innerText = `${latest.sleep} / 5`;
+            document.getElementById('dash-energy-val').innerText = `${latest.energy} / 10`;
+
+            const score = calculateWellbeingScore(latest);
+            document.getElementById('wellbeing-score-num').innerText = score;
+
+            // Circular progress calculations
+            const circle = document.getElementById('wellbeing-progress');
+            const offset = 440 - (440 * score) / 100;
+            circle.style.strokeDashoffset = offset;
+
+            // Status Badge
+            const badge = document.getElementById('wellbeing-status-badge');
+            if (score >= 75) {
+                badge.className = "status-badge stable";
+                badge.innerText = "🟢 Stable & Thriving";
+            } else if (score >= 55) {
+                badge.className = "status-badge attention";
+                badge.innerText = "🟡 Needs Attention";
+            } else if (score >= 35) {
+                badge.className = "status-badge support";
+                badge.innerText = "🟠 Consider Support";
+            } else {
+                badge.className = "status-badge critical";
+                badge.innerText = "🔴 Immediate Support Encouraged";
+            }
+        }
+
+        /* ==========================================================================
+           6. CHECK-IN WIZARD LOGIC
+           ========================================================================== */
+        function selectMood(val, text, el) {
+            document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            appState.currentCheckin.moodScore = val;
+            appState.currentCheckin.moodText = text;
+        }
+
+        function selectSleep(val, label, el) {
+            document.querySelectorAll('.sleep-btn').forEach(b => b.classList.remove('btn-primary'));
+            el.classList.add('btn-primary');
+            appState.currentCheckin.sleep = val;
+        }
+
+        function toggleTag(el, tag) {
+            el.classList.toggle('selected');
+            const idx = appState.currentCheckin.factors.indexOf(tag);
+            if (idx > -1) {
+                appState.currentCheckin.factors.splice(idx, 1);
+            } else {
+                appState.currentCheckin.factors.push(tag);
+            }
+        }
+
+        function changeWizardStep(dir) {
+            const currentEl = document.querySelector(`.wizard-step[data-step="${appState.wizardStep}"]`);
+            appState.wizardStep += dir;
+
+            if (appState.wizardStep > 8) {
+                saveCheckin();
+                return;
+            }
+
+            document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
+            const nextEl = document.querySelector(`.wizard-step[data-step="${appState.wizardStep}"]`);
+            if (nextEl) nextEl.classList.add('active');
+
+            document.getElementById('checkin-step-indicator').innerText = `Step ${appState.wizardStep} of 8`;
+            document.getElementById('btn-wizard-prev').disabled = appState.wizardStep === 1;
+            document.getElementById('btn-wizard-next').innerText = appState.wizardStep === 8 ? 'Complete Check-In' : 'Next Step';
+        }
+
+        function answerSafety(option) {
+            if (option === 'unsure' || option === 'no') {
+                showSafetyModal();
+            } else {
+                changeWizardStep(1);
+            }
+        }
+
+        function saveCheckin() {
+            appState.currentCheckin.stress = parseInt(document.getElementById('input-stress').value);
+            appState.currentCheckin.anxiety = parseInt(document.getElementById('input-anxiety').value);
+            appState.currentCheckin.energy = parseInt(document.getElementById('input-energy').value);
+            appState.currentCheckin.connection = parseInt(document.getElementById('input-connection').value);
+            appState.currentCheckin.notes = document.getElementById('checkin-notes').value;
+            appState.currentCheckin.date = new Date().toISOString();
+            appState.currentCheckin.wellbeingScore = calculateWellbeingScore(appState.currentCheckin);
+
+            appState.checkins.push({ ...appState.currentCheckin });
+            
+            if (!appState.isDemo) {
+                localStorage.setItem(STORAGE_KEYS.CHECKINS, JSON.stringify(appState.checkins));
+            }
+
+            alert("Check-in saved successfully! Your daily insights have updated.");
+            appState.wizardStep = 1;
+            navigateTo('dashboard');
+        }
+
+        /* ==========================================================================
+           7. CHARTS & ANALYTICS (CHART.JS)
+           ========================================================================== */
+        function renderCharts(days = 30) {
+            const grid = document.getElementById('insights-charts-grid');
+            const empty = document.getElementById('insights-empty-state');
+
+            if (appState.checkins.length === 0) {
+                grid.classList.add('hidden');
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            grid.classList.remove('hidden');
+            empty.classList.add('hidden');
+
+            const filteredData = appState.checkins.slice(-days);
+            const labels = filteredData.map(c => new Date(c.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }));
+
+            // Destroy previous chart instances to avoid overlap
+            Object.values(appState.chartInstances).forEach(chart => chart.destroy());
+
+            // 1. Mood & Stress Chart
+            const ctx1 = document.getElementById('chart-mood-stress').getContext('2d');
+            appState.chartInstances.moodStress = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Mood (1-5)', data: filteredData.map(c => c.moodScore), borderColor: '#6C5CE7', tension: 0.3 },
+                        { label: 'Stress (0-10)', data: filteredData.map(c => c.stress), borderColor: '#E17055', tension: 0.3 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            // 2. Sleep vs Energy
+            const ctx2 = document.getElementById('chart-sleep-energy').getContext('2d');
+            appState.chartInstances.sleepEnergy = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Sleep Quality', data: filteredData.map(c => c.sleep), backgroundColor: '#00CEC9' },
+                        { label: 'Energy Level', data: filteredData.map(c => c.energy), backgroundColor: '#A29BFE' }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            // 3. Anxiety Trend
+            const ctx3 = document.getElementById('chart-anxiety').getContext('2d');
+            appState.chartInstances.anxiety = new Chart(ctx3, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Anxiety Level', data: filteredData.map(c => c.anxiety), borderColor: '#FDCB6E', backgroundColor: 'rgba(253, 203, 110, 0.2)', fill: true }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function updateChartTimeframe(days, btn) {
+            document.querySelectorAll('.time-filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderCharts(days);
+        }
+
+        /* ==========================================================================
+           8. JOURNAL FUNCTIONALITY
+           ========================================================================== */
+        function renderJournalEntries() {
+            const container = document.getElementById('journal-list');
+            const search = document.getElementById('journal-search').value.toLowerCase();
+            const moodFilter = document.getElementById('journal-filter-mood').value;
+
+            container.innerHTML = '';
+
+            const filtered = appState.journal.filter(entry => {
+                const matchesSearch = entry.title.toLowerCase().includes(search) || entry.content.toLowerCase().includes(search);
+                const matchesMood = moodFilter === 'ALL' || entry.moodScore.toString() === moodFilter;
+                return matchesSearch && matchesMood;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="glass-card col-12" style="text-align:center; padding:2rem; color:var(--text-muted);">No journal entries found.</div>`;
+                return;
+            }
+
+            filtered.forEach(entry => {
+                const card = document.createElement('div');
+                card.className = 'glass-card';
+                card.innerHTML = `
+                    <div style="display:flex; justify-size:space-between; align-items:flex-start;">
+                        <div>
+                            <h4>${escapeHtml(entry.title)}</h4>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">${new Date(entry.date).toLocaleString()}</span>
+                        </div>
+                    </div>
+                    <p style="margin: 1rem 0; font-size:0.9rem; white-space:pre-wrap;">${escapeHtml(entry.content)}</p>
+                    <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+                        <button class="btn btn-outline" style="padding:0.25rem 0.75rem; font-size:0.8rem;" onclick="deleteJournalEntry('${entry.id}')">Delete</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function openJournalModal() {
+            document.getElementById('journal-modal').classList.add('active');
+        }
+
+        function closeJournalModal() {
+            document.getElementById('journal-modal').classList.remove('active');
+        }
+
+        function handleSaveJournal(e) {
+            e.preventDefault();
+            const title = document.getElementById('journal-title').value;
+            const moodScore = parseInt(document.getElementById('journal-mood').value);
+            const content = document.getElementById('journal-content').value;
+
+            const newEntry = {
+                id: 'j_' + Date.now(),
+                date: new Date().toISOString(),
+                title,
+                moodScore,
+                content
+            };
+
+            appState.journal.unshift(newEntry);
+            if (!appState.isDemo) {
+                localStorage.setItem(STORAGE_KEYS.JOURNAL, JSON.stringify(appState.journal));
+            }
+
+            closeJournalModal();
+            renderJournalEntries();
+            document.getElementById('journal-title').value = '';
+            document.getElementById('journal-content').value = '';
+        }
+
+        function deleteJournalEntry(id) {
+            if (confirm("Are you sure you want to delete this journal entry?")) {
+                appState.journal = appState.journal.filter(j => j.id !== id);
+                if (!appState.isDemo) {
+                    localStorage.setItem(STORAGE_KEYS.JOURNAL, JSON.stringify(appState.journal));
+                }
+                renderJournalEntries();
+            }
+        }
+
+        /* ==========================================================================
+           9. WELLNESS TOOLKIT (BREATHING & REFLECTION)
+           ========================================================================== */
+        let breathingActive = false;
+        function toggleBreathing() {
+            const circle = document.getElementById('breathing-circle');
+            const txt = document.getElementById('breathing-instruction');
+            const btn = document.getElementById('btn-breath-start');
+
+            if (breathingActive) {
+                resetBreathing();
+                return;
+            }
+
+            breathingActive = true;
+            btn.innerText = "Pause";
+            runBreathingCycle();
+            appState.breathingInterval = setInterval(runBreathingCycle, 14000);
+        }
+
+        function runBreathingCycle() {
+            const circle = document.getElementById('breathing-circle');
+            const txt = document.getElementById('breathing-instruction');
+
+            // Inhale 4s
+            circle.className = "breathing-circle expand";
+            circle.innerText = "Breathe In";
+            txt.innerText = "Inhale slowly through your nose...";
+
+            // Hold 4s
+            setTimeout(() => {
+                if (!breathingActive) return;
+                circle.className = "breathing-circle hold";
+                circle.innerText = "Hold";
+                txt.innerText = "Hold your breath calmly...";
+            }, 4000);
+
+            // Exhale 6s
+            setTimeout(() => {
+                if (!breathingActive) return;
+                circle.className = "breathing-circle shrink";
+                circle.innerText = "Exhale";
+                txt.innerText = "Exhale gently through your mouth...";
+            }, 8000);
+        }
+
+        function resetBreathing() {
+            clearInterval(appState.breathingInterval);
+            breathingActive = false;
+            const circle = document.getElementById('breathing-circle');
+            circle.className = "breathing-circle";
+            circle.innerText = "Ready";
+            document.getElementById('breathing-instruction').innerText = "Click Start to begin";
+            document.getElementById('btn-breath-start').innerText = "Start";
+        }
+
+        function saveReflection() {
+            alert("Your reflection answers have been saved locally for self-review.");
+        }
+
+        /* ==========================================================================
+           10. SETTINGS, THEME & DATA EXPORT
+           ========================================================================== */
+        function toggleTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            appState.settings.theme = theme;
+            localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(appState.settings));
+        }
+
+        function showSafetyModal() {
+            document.getElementById('safety-modal').classList.add('active');
+        }
+
+        function closeSafetyModal() {
+            document.getElementById('safety-modal').classList.remove('active');
+        }
+
+        function exportUserData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", "mindwatch_export.json");
+            dlAnchorElem.click();
+        }
+
+        function clearUserData() {
+            if (confirm("Are you strictly sure you want to delete all stored metrics, journal entries, and check-ins? This cannot be undone.")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        function saveProfileSettings() {
+            if (appState.currentUser) {
+                appState.currentUser.name = document.getElementById('prof-name').value;
+                localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(appState.currentUser));
+                alert("Profile settings saved successfully.");
+                checkAuthSession();
+            }
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
